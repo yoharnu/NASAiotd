@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NASAiotd
 {
@@ -32,23 +33,23 @@ namespace NASAiotd
         {
             if (this.hits == null)
             {
-                Console.WriteLine("first hits is null");
+                throw new JsonException("Unable to read NASA response");
             }
             else if (this.hits.hits is null)
             {
-                Console.WriteLine("second hits is null");
+                throw new JsonException("Unable to read NASA response");
             }
             else if (this.hits.hits.Length == 0)
             {
-                Console.WriteLine("second hits is empty");
+                throw new JsonException("Unable to read NASA response");
             }
             else if (this.hits.hits[0].getSource() is null)
             {
-                Console.WriteLine("source is null");
+                throw new JsonException("Unable to read NASA response");
             }
             else if (this.hits.hits[0].getSource().masterImage is null)
             {
-                Console.WriteLine("image is null");
+                throw new JsonException("Unable to read NASA response");
             }
             else
             {

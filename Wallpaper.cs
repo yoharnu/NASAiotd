@@ -32,41 +32,48 @@ public sealed class Wallpaper
         string tempPath = Path.Combine(Path.GetTempPath(), "wallpaper.bmp");
         img.Save(tempPath, System.Drawing.Imaging.ImageFormat.Bmp);
 
-        RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
-        if (style == Style.Fill)
+        RegistryKey? key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
+        if (key != null)
         {
-            key.SetValue(@"WallpaperStyle", 10.ToString());
-            key.SetValue(@"TileWallpaper", 0.ToString());
-        }
-        if (style == Style.Fit)
-        {
-            key.SetValue(@"WallpaperStyle", 6.ToString());
-            key.SetValue(@"TileWallpaper", 0.ToString());
-        }
-        if (style == Style.Span) // Windows 8 or newer only!
-        {
-            key.SetValue(@"WallpaperStyle", 22.ToString());
-            key.SetValue(@"TileWallpaper", 0.ToString());
-        }
-        if (style == Style.Stretch)
-        {
-            key.SetValue(@"WallpaperStyle", 2.ToString());
-            key.SetValue(@"TileWallpaper", 0.ToString());
-        }
-        if (style == Style.Tile)
-        {
-            key.SetValue(@"WallpaperStyle", 0.ToString());
-            key.SetValue(@"TileWallpaper", 1.ToString());
-        }
-        if (style == Style.Center)
-        {
-            key.SetValue(@"WallpaperStyle", 0.ToString());
-            key.SetValue(@"TileWallpaper", 0.ToString());
-        }
+            if (style == Style.Fill)
+            {
+                key.SetValue(@"WallpaperStyle", 10.ToString());
+                key.SetValue(@"TileWallpaper", 0.ToString());
+            }
+            if (style == Style.Fit)
+            {
+                key.SetValue(@"WallpaperStyle", 6.ToString());
+                key.SetValue(@"TileWallpaper", 0.ToString());
+            }
+            if (style == Style.Span) // Windows 8 or newer only!
+            {
+                key.SetValue(@"WallpaperStyle", 22.ToString());
+                key.SetValue(@"TileWallpaper", 0.ToString());
+            }
+            if (style == Style.Stretch)
+            {
+                key.SetValue(@"WallpaperStyle", 2.ToString());
+                key.SetValue(@"TileWallpaper", 0.ToString());
+            }
+            if (style == Style.Tile)
+            {
+                key.SetValue(@"WallpaperStyle", 0.ToString());
+                key.SetValue(@"TileWallpaper", 1.ToString());
+            }
+            if (style == Style.Center)
+            {
+                key.SetValue(@"WallpaperStyle", 0.ToString());
+                key.SetValue(@"TileWallpaper", 0.ToString());
+            }
 
-        SystemParametersInfo(SPI_SETDESKWALLPAPER,
-            0,
-            tempPath,
-            SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+            SystemParametersInfo(SPI_SETDESKWALLPAPER,
+                0,
+                tempPath,
+                SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+        }
+        else
+        {
+            throw new InvalidOperationException("Unable to access registry");
+        }
     }
 }

@@ -16,13 +16,13 @@ internal class Program
         {
             if (NResponse.getImage() is null)
             {
-                Console.WriteLine(text);
+                throw new JsonException("Unable to read NASA response");
             }
             else
             {
                 if (NResponse.getImage().uri is null)
                 {
-                    Console.WriteLine("URI is null");
+                    throw new JsonException("Unable to read NASA response");
                 }
                 else
                 {
@@ -33,7 +33,7 @@ internal class Program
         }
         else
         {
-            Console.WriteLine(text);
+            throw new JsonException("Unable to read NASA response");
         }
     }
 }
