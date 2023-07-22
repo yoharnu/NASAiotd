@@ -23,7 +23,7 @@ public sealed class Wallpaper
         Center
     }
 
-    public static async void Set(Uri uri, Style style)
+    public static void Set(Uri uri, Style style)
     {
         HttpClient httpClient = new HttpClient();
         Task<Stream> task = httpClient.GetStreamAsync(uri.ToString());
