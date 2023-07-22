@@ -12,7 +12,7 @@ internal class Program
 
         HttpResponseMessage response = await httpClient.SendAsync(request);
         string text = await response.Content.ReadAsStringAsync();
-        Logger.Debug("Response from NASA API: "+ text);
+        Logger.Debug("Response from NASA API: " + text);
         try
         {
             NASAResponse? NResponse = JsonSerializer.Deserialize<NASAResponse>(text);
@@ -32,7 +32,25 @@ internal class Program
                     {
                         string URL = NResponse.getImage().uri.Replace("public://", "https://www.nasa.gov/sites/default/files/");
                         Logger.Debug("Image URL: " + URL);
-                        Wallpaper.Set(new Uri(URL), Wallpaper.Style.Fill);
+
+                        if (IsNewImage(URL))
+                        {
+                            try
+                            {
+                                TextWriter tw = new StreamWriter("PrevImg.dat");
+                                tw.WriteLine(URL);
+                                tw.Close();
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Debug(e.Message);
+                            }
+                            Wallpaper.Set(new Uri(URL), Wallpaper.Style.Fill);
+                        }
+                        else
+                        {
+                            Logger.Info("No new image found");
+                        }
                     }
                 }
             }
@@ -46,6 +64,27 @@ internal class Program
             Logger.Fatal(e.Message);
             Logger.Debug(e.StackTrace);
             return;
+        }
+    }
+
+    private static Boolean IsNewImage(string imagePath)
+    {
+        try
+        {
+            TextReader tr = new StreamReader("PrevImg.dat");
+            string? oldImagePath = tr.ReadLine();
+            tr.Close();
+            if (oldImagePath is null)
+            {
+                return true;
+            }
+
+            return !(oldImagePath == imagePath);
+        }
+        catch (Exception e)
+        {
+            Logger.Debug(e.Message);
+            return true;
         }
     }
 }
