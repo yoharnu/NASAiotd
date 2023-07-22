@@ -23,9 +23,10 @@ public sealed class Wallpaper
         Center
     }
 
-    public static void Set(Uri uri, Style style)
+    public static async void Set(Uri uri, Style style)
     {
-        System.IO.Stream s = new System.Net.WebClient().OpenRead(uri.ToString());
+        HttpClient httpClient = new HttpClient();
+        Stream s = await httpClient.GetStreamAsync(uri.ToString());
 
         System.Drawing.Image img = Image.FromStream(s);
         string tempPath = Path.Combine(Path.GetTempPath(), "wallpaper.bmp");
