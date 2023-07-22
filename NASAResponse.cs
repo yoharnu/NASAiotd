@@ -10,8 +10,9 @@ namespace NASAiotd
             public Hit[]? hits { get; set; }
             internal class Hit
             {
-                public Source? _source { get; set; }
-                public Source? getSource() => _source;
+                [JsonPropertyName("_source")]
+                public Source? source { get; set; }
+                public Source? getSource() => source;
                 internal class Source
                 {
                     [JsonPropertyName("master-image")]
@@ -45,7 +46,6 @@ namespace NASAiotd
             {
                 Console.WriteLine("source is null");
             }
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             else if (this.hits.hits[0].getSource().masterImage is null)
             {
                 Console.WriteLine("image is null");
@@ -54,9 +54,6 @@ namespace NASAiotd
             {
                 return this.hits.hits[0].getSource().masterImage;
             }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-            return null;
         }
     }
 }

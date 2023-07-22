@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32;
-using System.Runtime.InteropServices;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 public sealed class Wallpaper
 {
@@ -13,7 +13,7 @@ public sealed class Wallpaper
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
-    public enum Style: int
+    public enum Style : int
     {
         Fill,
         Fit,
