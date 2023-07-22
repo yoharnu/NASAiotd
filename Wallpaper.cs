@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 public sealed class Wallpaper
 {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     Wallpaper() { }
 
     const int SPI_SETDESKWALLPAPER = 20;
@@ -25,11 +26,13 @@ public sealed class Wallpaper
 
     public static void Set(Uri uri, Style style)
     {
+        Logger.Info("Retrieving image...");
         HttpClient httpClient = new HttpClient();
         Task<Stream> task = httpClient.GetStreamAsync(uri.ToString());
         task.Wait();
         Stream s = task.Result;
 
+        Logger.Info("Applying image to desktop...");
         System.Drawing.Image img = Image.FromStream(s);
         string tempPath = Path.Combine(Path.GetTempPath(), "wallpaper.bmp");
         img.Save(tempPath, System.Drawing.Imaging.ImageFormat.Bmp);
@@ -75,6 +78,7 @@ public sealed class Wallpaper
         }
         else
         {
+            Logger.Fatal("Unable to access registry");
             throw new InvalidOperationException("Unable to access registry");
         }
     }
