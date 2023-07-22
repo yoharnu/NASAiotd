@@ -26,7 +26,9 @@ public sealed class Wallpaper
     public static async void Set(Uri uri, Style style)
     {
         HttpClient httpClient = new HttpClient();
-        Stream s = await httpClient.GetStreamAsync(uri.ToString());
+        Task<Stream> task = httpClient.GetStreamAsync(uri.ToString());
+        task.Wait();
+        Stream s = task.Result;
 
         System.Drawing.Image img = Image.FromStream(s);
         string tempPath = Path.Combine(Path.GetTempPath(), "wallpaper.bmp");
