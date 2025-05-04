@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 
+namespace NASAiotd;
+
 public sealed class Wallpaper
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

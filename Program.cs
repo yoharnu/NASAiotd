@@ -1,5 +1,6 @@
-﻿using NASAiotd;
-using System.Text.Json;
+﻿using HtmlAgilityPack;
+
+namespace NASAiotd;
 
 internal class Program
 {
@@ -8,83 +9,37 @@ internal class Program
     private static async Task Main(string[] args)
     {
         Logger.Info("Contacting NASA...");
-        HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), "https://www.nasa.gov/api/2/ubernode/_search?size=1&from=0&sort=promo-date-time%3Adesc&q=((ubernode-type%3Afeature%20OR%20ubernode-type%3Aimage)%20AND%20(routes%3A1446))&_source_include=promo-date-time%2Cmaster-image%2Cnid%2Ctitle%2Ctopics%2Cmissions%2Ccollections%2Cother-tags%2Cubernode-type%2Cprimary-tag%2Csecondary-tag%2Ccardfeed-title%2Ctype%2Ccollection-asset-link%2Clink-or-attachment%2Cpr-leader-sentence%2Cimage-feature-caption%2Cattachments%2Curi");
+        HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("GET"), "https://www.nasa.gov/image-of-the-day/");
 
         HttpResponseMessage response = await httpClient.SendAsync(request);
         string text = await response.Content.ReadAsStringAsync();
         Logger.Debug("Response from NASA API: " + text);
         try
         {
-            NASAResponse? NResponse = JsonSerializer.Deserialize<NASAResponse>(text);
-            if (NResponse is not null)
+            HtmlDocument htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(text);
+            var imageNode = htmlDoc.DocumentNode.SelectNodes("//article/section/div/div[2]/div/div[1]/a/img").FirstOrDefault();// .Attributes["src"].Value;
+            if (imageNode is null)
             {
-                if (NResponse.getImage() is null)
-                {
-                    throw new JsonException("Unable to read NASA response");
-                }
-                else
-                {
-                    if (NResponse.getImage().uri is null)
-                    {
-                        throw new JsonException("Unable to read NASA response");
-                    }
-                    else
-                    {
-                        string URL = NResponse.getImage().uri.Replace("public://", "https://www.nasa.gov/sites/default/files/");
-                        Logger.Debug("Image URL: " + URL);
+                throw new HttpRequestException("Unable to read NASA response");
+            }
 
-                        if (IsNewImage(URL))
-                        {
-                            try
-                            {
-                                TextWriter tw = new StreamWriter("PrevImg.dat");
-                                tw.WriteLine(URL);
-                                tw.Close();
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.Debug(e.Message);
-                            }
-                            Wallpaper.Set(new Uri(URL), Wallpaper.Style.Fill);
-                        }
-                        else
-                        {
-                            Logger.Info("No new image found");
-                        }
-                    }
-                }
-            }
-            else
+            var imageURL = imageNode.Attributes.FirstOrDefault(x => x.Name == "src")?.Value ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(imageURL))
             {
-                throw new JsonException("Unable to read NASA response");
+                throw new HttpRequestException("Unable to parse URL");
             }
+
+            Console.WriteLine(imageURL);
+            Wallpaper.Set(new Uri(imageURL), Wallpaper.Style.Fill);
+            return;
         }
-        catch (JsonException e)
+        catch (HttpRequestException e)
         {
             Logger.Fatal(e.Message);
             Logger.Debug(e.StackTrace);
             return;
-        }
-    }
-
-    private static Boolean IsNewImage(string imagePath)
-    {
-        try
-        {
-            TextReader tr = new StreamReader("PrevImg.dat");
-            string? oldImagePath = tr.ReadLine();
-            tr.Close();
-            if (oldImagePath is null)
-            {
-                return true;
-            }
-
-            return !(oldImagePath == imagePath);
-        }
-        catch (Exception e)
-        {
-            Logger.Debug(e.Message);
-            return true;
         }
     }
 }
