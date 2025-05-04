@@ -18,7 +18,7 @@ internal class Program
         {
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(text);
-            var imageNode = htmlDoc.DocumentNode.SelectNodes("//article/section/div/div[2]/div/div[1]/a/img").FirstOrDefault();// .Attributes["src"].Value;
+            var imageNode = htmlDoc.DocumentNode.SelectNodes("//article/section/div/div[2]/div/div[1]/a/img").FirstOrDefault();
             if (imageNode is null)
             {
                 throw new HttpRequestException("Unable to read NASA response");
